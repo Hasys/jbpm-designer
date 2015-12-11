@@ -66,9 +66,9 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Antoine Toulme
  * @author Tihomir Surdilovic
- * 
+ *
  *         an unmarshaller to transform JSON into BPMN 2.0 elements.
- * 
+ *
  */
 public class Bpmn2JsonUnmarshaller {
 
@@ -82,7 +82,7 @@ public class Bpmn2JsonUnmarshaller {
     // a list of the objects created, kept in memory with their original id for
     // fast lookup.
     private Map<Object, String> _objMap = new HashMap<Object, String>();
-    
+
     private Map<String, Object> _idMap = new HashMap<String, Object>();
 
     // the collection of outgoing ids.
@@ -101,7 +101,7 @@ public class Bpmn2JsonUnmarshaller {
     private String processDocs;
 
     private Bpmn2Resource _currentResource;
-    
+
     private Map<String,Escalation> _escalations = new HashMap<String, Escalation>();
     private Map<String,Error> _errors = new HashMap<String, Error>();
     private Map<String,Message> _messages = new HashMap<String, Message>();
@@ -129,7 +129,7 @@ public class Bpmn2JsonUnmarshaller {
             } catch (InvalidSyntaxException e) {
 
             }
-            
+
         }
     }
 
@@ -790,7 +790,7 @@ public class Bpmn2JsonUnmarshaller {
     	}
     	_subprocessItemDefs.clear();
     }
-    
+
     public void updateIDs(Definitions def) {
     	// data object id update
     	List<RootElement> rootElements =  def.getRootElements();
@@ -811,7 +811,7 @@ public class Bpmn2JsonUnmarshaller {
         	}
         }
     }
-    
+
     public void addSimulation(Definitions def) {
 		Relationship relationship = Bpmn2Factory.eINSTANCE.createRelationship();
 		relationship.getSources().add(def);
@@ -823,7 +823,7 @@ public class Bpmn2JsonUnmarshaller {
 		defaultScenario.setId("default"); // single scenario suppoert
 		defaultScenario.setName("Simulationscenario"); // single scenario support
 		defaultScenario.setScenarioParameters(_simulationScenarioParameters);
-		
+
 		if(_simulationElementParameters.size() > 0) {
     		Iterator<String> iter = _simulationElementParameters.keySet().iterator();
     		while(iter.hasNext()) {
@@ -855,7 +855,7 @@ public class Bpmn2JsonUnmarshaller {
         relationship.getExtensionValues().get(0).getValue().add(extensionElementEntry);
         def.getRelationships().add(relationship);
     }
-    
+
     public void revisitDataObjects(Definitions def) {
     	List<RootElement> rootElements =  def.getRootElements();
     	List<ItemDefinition> itemDefinitionsToAddUnfiltered = new ArrayList<ItemDefinition>();
@@ -904,7 +904,7 @@ public class Bpmn2JsonUnmarshaller {
         for(ItemDefinition itemDefFil : itemDefinitionsToAddFiltered) {
             def.getRootElements().add(itemDefFil);
         }
-        
+
         for(RootElement root : rootElements) {
         	if(root instanceof Process) {
 	        	Process process = (Process) root;
@@ -912,7 +912,7 @@ public class Bpmn2JsonUnmarshaller {
 	            for(Artifact af : artifactElements) {
 	            	if(af instanceof Association) {
 	            		Association as = (Association) af;
-	            		if(as.getSourceRef() != null && as.getSourceRef() instanceof DataObject 
+	            		if(as.getSourceRef() != null && as.getSourceRef() instanceof DataObject
 	            				&& as.getTargetRef() != null && (as.getTargetRef() instanceof Task || as.getTargetRef() instanceof ThrowEvent)) {
 	            			DataObject da = (DataObject) as.getSourceRef();
 	            			if(as.getTargetRef() instanceof Task) {
@@ -959,21 +959,21 @@ public class Bpmn2JsonUnmarshaller {
 	            					datain.setId(te.getId() + "_" + da.getId() + "InputX");
 	            					datain.setName(da.getId() + "InputX");
 	            					te.getDataInputs().add(datain);
-	            					
+
 	            					if(te.getInputSet() == null) {
 		            	            	InputSet inset = Bpmn2Factory.eINSTANCE.createInputSet();
 		            	            	te.setInputSet(inset);
 		            	            }
 	            					te.getInputSet().getDataInputRefs().add(datain);
-	            					
+
 	            					DataInputAssociation dia = Bpmn2Factory.eINSTANCE.createDataInputAssociation();
 	            					dia.setTargetRef(datain);
 	            					dia.getSourceRef().add(da);
 	            					te.getDataInputAssociation().add(dia);
 	            				}
 	            			}
-	            		} 
-	            		if(as.getTargetRef() != null && as.getTargetRef() instanceof DataObject 
+	            		}
+	            		if(as.getTargetRef() != null && as.getTargetRef() instanceof DataObject
 	            				&& as.getSourceRef() != null && (as.getSourceRef() instanceof Task || as.getSourceRef() instanceof CatchEvent)) {
 	            			DataObject da = (DataObject) as.getTargetRef();
 	            			if(as.getSourceRef() instanceof Task) {
@@ -982,12 +982,12 @@ public class Bpmn2JsonUnmarshaller {
 	            	                InputOutputSpecification iospec = Bpmn2Factory.eINSTANCE.createInputOutputSpecification();
 	            	                task.setIoSpecification(iospec);
 	            	            }
-	            				
+
 	            				if(task.getIoSpecification().getOutputSets() == null || task.getIoSpecification().getOutputSets().size() < 1) {
 	            	            	OutputSet outSet = Bpmn2Factory.eINSTANCE.createOutputSet();
 	            	                task.getIoSpecification().getOutputSets().add(outSet);
 	            	            }
-	            				
+
 	            				boolean foundDataOutput = false;
 	            				OutputSet outSet = task.getIoSpecification().getOutputSets().get(0);
 	            				for(DataOutput dataOut : outSet.getDataOutputRefs()) {
@@ -1023,13 +1023,13 @@ public class Bpmn2JsonUnmarshaller {
 	            					dataout.setId(ce.getId() + "_" + da.getId() + "OutputX");
 	            					dataout.setName(da.getId() + "OutputX");
 	            					ce.getDataOutputs().add(dataout);
-	            					
+
 	            					if(ce.getOutputSet() == null) {
 		            	            	OutputSet outset = Bpmn2Factory.eINSTANCE.createOutputSet();
 		            	            	ce.setOutputSet(outset);
 		            	            }
 	            					ce.getOutputSet().getDataOutputRefs().add(dataout);
-	            					
+
 	            					DataOutputAssociation dia = Bpmn2Factory.eINSTANCE.createDataOutputAssociation();
 	            					dia.setTargetRef(da);
 	            					dia.getSourceRef().add(dataout);
@@ -1112,7 +1112,7 @@ public class Bpmn2JsonUnmarshaller {
 	        }
         }
     }
-    
+
     public void revisitTaskAssociations(Definitions def) {
     	List<RootElement> rootElements =  def.getRootElements();
         for(RootElement root : rootElements) {
@@ -1158,14 +1158,14 @@ public class Bpmn2JsonUnmarshaller {
                 				}
                 			}
                 		}
-                		
+
                 		if(t.getIoSpecification() != null) {
                 			InputOutputSpecification ios = t.getIoSpecification();
                 			if(ios.getInputSets() == null || ios.getInputSets().size() < 1) {
                 				InputSet inset = Bpmn2Factory.eINSTANCE.createInputSet();
                 				ios.getInputSets().add(inset);
                 			}
-                			
+
                 			if(ios.getOutputSets() == null) {
                 				if(ios.getOutputSets() == null || ios.getOutputSets().size() < 1) {
                 					OutputSet outset = Bpmn2Factory.eINSTANCE.createOutputSet();
@@ -1239,7 +1239,7 @@ public class Bpmn2JsonUnmarshaller {
             }
         }
     }
-    
+
     public void revisitLanes(Definitions def) {
         List<RootElement> rootElements =  def.getRootElements();
         for(RootElement root : rootElements) {
@@ -1259,7 +1259,7 @@ public class Bpmn2JsonUnmarshaller {
             }
         }
     }
-    
+
     public void revisitArtifacts(Definitions def) {
     	List<RootElement> rootElements =  def.getRootElements();
         for(RootElement root : rootElements) {
@@ -1271,7 +1271,7 @@ public class Bpmn2JsonUnmarshaller {
             }
         }
     }
-    
+
     public void revisitGroups(Definitions def) {
     	List<RootElement> rootElements =  def.getRootElements();
     	Category defaultCat = Bpmn2Factory.eINSTANCE.createCategory();
@@ -1304,7 +1304,7 @@ public class Bpmn2JsonUnmarshaller {
         	rootElements.add(defaultCat);
         }
     }
-    
+
     /**
      * Updates event definitions for all throwing events.
      * @param def Definitions
@@ -1336,7 +1336,7 @@ public class Bpmn2JsonUnmarshaller {
         for(ItemDefinition idef : toAddItemDefinitions) {
             def.getRootElements().add(idef);
         }
-        for(Message msg : toAddMessages) { 
+        for(Message msg : toAddMessages) {
             def.getRootElements().add(msg);
         }
     }
@@ -1406,7 +1406,7 @@ public class Bpmn2JsonUnmarshaller {
                                                     err.setErrorCode(errorCode);
                                                     this._errors.put(errorCode, err);
                                                 }
-                                                
+
 						toAddErrors.add(err);
 						((ErrorEventDefinition) ed).setErrorRef(err);
 
@@ -1432,7 +1432,7 @@ public class Bpmn2JsonUnmarshaller {
 					} else if (ed instanceof MessageEventDefinition) {
                                             String idefId = null;
                                             String msgId = null;
-                                            
+
 						Iterator<FeatureMap.Entry> iter = ed.getAnyAttribute()
 								.iterator();
 						while (iter.hasNext()) {
@@ -1443,7 +1443,7 @@ public class Bpmn2JsonUnmarshaller {
                                                             idefId = (String) entry.getValue() + "Type";
 							}
 						}
-                                                
+
                                                 ItemDefinition idef = _itemDefinitions.get(idefId);
                                                 if (idef == null){
                                                     idef = Bpmn2Factory.eINSTANCE
@@ -1451,7 +1451,7 @@ public class Bpmn2JsonUnmarshaller {
                                                     idef.setId(idefId);
                                                     _itemDefinitions.put(idefId, idef);
                                                 }
-                                                
+
                                                 Message msg = _messages.get(msgId);
                                                 if (msg == null){
                                                     msg = Bpmn2Factory.eINSTANCE.createMessage();
@@ -1459,8 +1459,8 @@ public class Bpmn2JsonUnmarshaller {
                                                     msg.setItemRef(idef);
                                                     _messages.put(msgId, msg);
                                                 }
-                                                
-						
+
+
 						toAddMessages.add(msg);
 						toAddItemDefinitions.add(idef);
 						((MessageEventDefinition) ed).setMessageRef(msg);
@@ -1879,7 +1879,7 @@ public class Bpmn2JsonUnmarshaller {
             }
         }
     }
-    
+
     public void revisitAssociationsIoSpec(Definitions def) {
     	List<RootElement> rootElements =  def.getRootElements();
     	List<ItemDefinition> toAddItemDefinitions = new ArrayList<ItemDefinition>();
@@ -1892,7 +1892,7 @@ public class Bpmn2JsonUnmarshaller {
         	def.getRootElements().add(itemDef);
         }
     }
-    
+
     public void setItemDefinitionsForActivitiesIoSpec(FlowElementsContainer container, Definitions def, List<ItemDefinition> toAddItemDefinitions) {
     	List<FlowElement> flowElements =  container.getFlowElements();
     	for(FlowElement fe : flowElements) {
@@ -1918,7 +1918,7 @@ public class Bpmn2JsonUnmarshaller {
                             }
     					}
     				}
-    				
+
     				if(ac.getIoSpecification().getDataOutputs() != null) {
     					List<DataOutput> dataOutputs = ac.getIoSpecification().getDataOutputs();
     					for(DataOutput dout: dataOutputs) {
@@ -2054,7 +2054,7 @@ public class Bpmn2JsonUnmarshaller {
         }
         return null;
     }
-    
+
     /**
      * Updates event definitions for all catch events.
      * @param def Definitions
@@ -2090,8 +2090,8 @@ public class Bpmn2JsonUnmarshaller {
             def.getRootElements().add(msg);
         }
     }
-    
-    public void setCatchEventsInfo(FlowElementsContainer container, Definitions def, List<Signal> toAddSignals, Set<Error> toAddErrors, 
+
+    public void setCatchEventsInfo(FlowElementsContainer container, Definitions def, List<Signal> toAddSignals, Set<Error> toAddErrors,
     		Set<Escalation> toAddEscalations, Set<Message> toAddMessages, Set<ItemDefinition> toAddItemDefinitions) {
                 List<FlowElement> flowElements =  container.getFlowElements();
                 for(FlowElement fe : flowElements) {
@@ -2154,7 +2154,7 @@ public class Bpmn2JsonUnmarshaller {
 
                                 toAddErrors.add(err);
                                 ((ErrorEventDefinition) ed).setErrorRef(err);
-                                
+
                             } else if(ed instanceof EscalationEventDefinition) {
                                 String escalationCode = null;
                                 Iterator<FeatureMap.Entry> iter = ed.getAnyAttribute().iterator();
@@ -2165,7 +2165,7 @@ public class Bpmn2JsonUnmarshaller {
                                         break;
                                     }
                                 }
-                                
+
                                 Escalation escalation = this._escalations.get(escalationCode);
                                 if (escalation == null){
                                     escalation = Bpmn2Factory.eINSTANCE.createEscalation();
@@ -2388,7 +2388,7 @@ public class Bpmn2JsonUnmarshaller {
             }
         }
     }
-    
+
     /**
      * Updates the gatewayDirection attributes of all gateways.
      * @param def
@@ -2401,7 +2401,7 @@ public class Bpmn2JsonUnmarshaller {
             }
         }
     }
-    
+
     private void setGatewayInfo(FlowElementsContainer container) {
     	List<FlowElement> flowElements =  container.getFlowElements();
         for(FlowElement fe : flowElements) {
@@ -2409,19 +2409,19 @@ public class Bpmn2JsonUnmarshaller {
                 Gateway gateway = (Gateway) fe;
                 int incoming = gateway.getIncoming() == null ? 0 : gateway.getIncoming().size();
                 int outgoing = gateway.getOutgoing() == null ? 0 : gateway.getOutgoing().size();
-                
+
                 if (incoming <= 1 && outgoing > 1) {
                     gateway.setGatewayDirection(GatewayDirection.DIVERGING);
                 } else if (incoming > 1 && outgoing <= 1) {
                     gateway.setGatewayDirection(GatewayDirection.CONVERGING);
-                } 
+                }
                 // temp. removing support for mixed gateway direction (not supported by runtime yet)
 //                else if (incoming > 1 && outgoing > 1) {
 //                    gateway.setGatewayDirection(GatewayDirection.MIXED);
-//                } 
-//                else if (incoming == 1 && outgoing == 1) { 
+//                }
+//                else if (incoming == 1 && outgoing == 1) {
 //                    // this handles the 1:1 case of the diverging gateways
-//                } 
+//                }
                 else {
                     gateway.setGatewayDirection(GatewayDirection.UNSPECIFIED);
                 }
@@ -2505,7 +2505,7 @@ public class Bpmn2JsonUnmarshaller {
             }
         }
     }
-    
+
     private void revisitServiceTasks(Definitions def) {
         List<RootElement> rootElements =  def.getRootElements();
         List<Interface> toAddInterfaces = new ArrayList<Interface>();
@@ -2520,7 +2520,7 @@ public class Bpmn2JsonUnmarshaller {
         for(Lane lane : _lanes) {
             revisitServiceTasksExecuteForLanes(lane, def, rootElements, toAddInterfaces, toAddMessages, toAddDefinitions);
         }
-        
+
         for(ItemDefinition id : toAddDefinitions) {
             def.getRootElements().add(id);
         }
@@ -2780,7 +2780,7 @@ public class Bpmn2JsonUnmarshaller {
         }
 
     }
-    
+
     /**
      * Revisit message to set their item ref to a item definition
      * @param def Definitions
@@ -2849,7 +2849,7 @@ public class Bpmn2JsonUnmarshaller {
             }
         }
     }
-    
+
     private void createSubProcessDiagram(BPMNPlane plane, FlowElement flowElement, BpmnDiFactory factory) {
 		SubProcess sp = (SubProcess) flowElement;
 		for(FlowElement subProcessFlowElement : sp.getFlowElements()) {
@@ -2961,7 +2961,7 @@ public class Bpmn2JsonUnmarshaller {
             }
         }
     }
-    
+
     private void createDiagram(Definitions def) {
     	for (RootElement rootElement: def.getRootElements()) {
     		if (rootElement instanceof Process) {
@@ -3308,7 +3308,7 @@ public class Bpmn2JsonUnmarshaller {
 	                // tasks are only permitted under processes.
 	                // a process should be created implicitly for tasks at the root
 	                // level.
-	
+
 	                // process designer doesn't make a difference between tasks and
 	                // global tasks.
 	                // if a task has sequence edges it is considered a task,
@@ -3320,7 +3320,7 @@ public class Bpmn2JsonUnmarshaller {
 	//                    if (child instanceof ScriptTask) {
 	//                        task = Bpmn2Factory.eINSTANCE.createGlobalScriptTask();
 	//                        ((GlobalScriptTask) task).setScript(((ScriptTask) child).getScript());
-	//                        ((GlobalScriptTask) task).setScriptLanguage(((ScriptTask) child).getScriptFormat()); 
+	//                        ((GlobalScriptTask) task).setScriptLanguage(((ScriptTask) child).getScriptFormat());
 	//                        // TODO scriptLanguage missing on scriptTask
 	//                    } else if (child instanceof UserTask) {
 	//                        task = Bpmn2Factory.eINSTANCE.createGlobalUserTask();
@@ -3358,10 +3358,10 @@ public class Bpmn2JsonUnmarshaller {
 	                            container.getFlowElements().add((SequenceFlow) child);
 	                            continue;
 	                        }
-	                        
+
 	                    }
-	                    if (child instanceof Task || child instanceof SequenceFlow 
-	                            || child instanceof Gateway || child instanceof Event 
+	                    if (child instanceof Task || child instanceof SequenceFlow
+	                            || child instanceof Gateway || child instanceof Event
 	                            || child instanceof Artifact || child instanceof DataObject || child instanceof SubProcess
 	                            || child instanceof Lane || child instanceof CallActivity || child instanceof TextAnnotation) {
 	                        if (rootLevelProcess == null) {
@@ -3505,7 +3505,7 @@ public class Bpmn2JsonUnmarshaller {
             for (BaseElement child : childElements) {
                 if (child instanceof FlowElement) {
                     ((SubProcess) baseElt).getFlowElements().add((FlowElement) child);
-                } else if(child instanceof Artifact) { 
+                } else if(child instanceof Artifact) {
                 	((SubProcess) baseElt).getArtifacts().add((Artifact) child);
                 } else {
                     _logger.error("Subprocess - don't know what to do of " + child);
@@ -3524,7 +3524,7 @@ public class Bpmn2JsonUnmarshaller {
 //        				((Lane) baseElt).setChildLaneSet(Bpmn2Factory.eINSTANCE.createLaneSet());
 //        			}
 //        			((Lane) baseElt).getChildLaneSet().getLanes().add((Lane) child);
-//        		} 
+//        		}
         		else if(child instanceof Artifact){
         			_artifacts.add((Artifact) child);
         		} else {
@@ -3594,7 +3594,7 @@ public class Bpmn2JsonUnmarshaller {
         }
         if (baseElement instanceof UserTask) {
             applyUserTaskProperties((UserTask) baseElement, properties);
-        }  
+        }
         if (baseElement instanceof BusinessRuleTask) {
             applyBusinessRuleTaskProperties((BusinessRuleTask) baseElement, properties);
         }
@@ -3651,7 +3651,7 @@ public class Bpmn2JsonUnmarshaller {
             helper.applyProperties(baseElement, properties);
         }
     }
-    
+
     protected void applySubProcessProperties(SubProcess sp, Map<String, String> properties) {
         if(properties.get("name") != null) {
             sp.setName(escapeXmlString(properties.get("name")).replaceAll("\\r\\n|\\r|\\n", " "));
@@ -3677,7 +3677,7 @@ public class Bpmn2JsonUnmarshaller {
             for(String action : allActions) {
                 OnEntryScriptType onEntryScript = DroolsFactory.eINSTANCE.createOnEntryScriptType();
                 onEntryScript.setScript(wrapInCDATABlock(replaceScriptEscapeAndNewLines(action)));
-                
+
                 String scriptLanguage;
                 if(properties.get("script_language").equals("java")) {
                     scriptLanguage = "http://www.java.com/java";
@@ -3689,8 +3689,8 @@ public class Bpmn2JsonUnmarshaller {
                     // default to java
                     scriptLanguage = "http://www.java.com/java";
                 }
-                onEntryScript.setScriptFormat(scriptLanguage); 
-                
+                onEntryScript.setScriptFormat(scriptLanguage);
+
                 if(sp.getExtensionValues() == null || sp.getExtensionValues().size() < 1) {
                 	ExtensionAttributeValue extensionElement = Bpmn2Factory.eINSTANCE.createExtensionAttributeValue();
                 	sp.getExtensionValues().add(extensionElement);
@@ -3700,13 +3700,13 @@ public class Bpmn2JsonUnmarshaller {
                 sp.getExtensionValues().get(0).getValue().add(extensionElementEntry);
             }
         }
-        
+
         if(properties.get("onexitactions") != null && properties.get("onexitactions").length() > 0) {
             String[] allActions = properties.get("onexitactions").split( "\\|\\s*" );
             for(String action : allActions) {
                 OnExitScriptType onExitScript = DroolsFactory.eINSTANCE.createOnExitScriptType();
                 onExitScript.setScript(wrapInCDATABlock(replaceScriptEscapeAndNewLines(action)));
-                
+
                 String scriptLanguage;
                 if(properties.get("script_language").equals("java")) {
                     scriptLanguage = "http://www.java.com/java";
@@ -3718,8 +3718,8 @@ public class Bpmn2JsonUnmarshaller {
                     // default to java
                     scriptLanguage = "http://www.java.com/java";
                 }
-                onExitScript.setScriptFormat(scriptLanguage); 
-                
+                onExitScript.setScriptFormat(scriptLanguage);
+
                 if(sp.getExtensionValues() == null || sp.getExtensionValues().size() < 1) {
                 	ExtensionAttributeValue extensionElement = Bpmn2Factory.eINSTANCE.createExtensionAttributeValue();
                 	sp.getExtensionValues().add(extensionElement);
@@ -3744,7 +3744,7 @@ public class Bpmn2JsonUnmarshaller {
                     (Internal) DroolsPackage.Literals.DOCUMENT_ROOT__META_DATA, metadata);
             sp.getExtensionValues().get(0).getValue().add(extensionElementEntry);
         }
-        
+
         // data input set
         if(properties.get("datainputset") != null && properties.get("datainputset").trim().length() > 0) {
             String[] allDataInputs = properties.get("datainputset").split( ",\\s*" );
@@ -3760,7 +3760,7 @@ public class Bpmn2JsonUnmarshaller {
 	                if(dataInputParts.length == 2) {
 	                	nextInput.setId(sp.getId() + "_" + dataInputParts[0] + "InputX");
 	                	nextInput.setName(dataInputParts[0]);
-	                	
+
 	                	ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
 	                    EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
 	                            "http://www.jboss.org/drools", "dtype", false, false);
@@ -3778,7 +3778,7 @@ public class Bpmn2JsonUnmarshaller {
                                 "Object");
                         nextInput.getAnyAttribute().add(extensionEntry);
 	                }
-	                
+
 	                sp.getIoSpecification().getDataInputs().add(nextInput);
 	                inset.getDataInputRefs().add(nextInput);
             	}
@@ -3789,7 +3789,7 @@ public class Bpmn2JsonUnmarshaller {
             	sp.getIoSpecification().getInputSets().add(Bpmn2Factory.eINSTANCE.createInputSet());
             }
         }
-        
+
         // data output set
         if(properties.get("dataoutputset") != null && properties.get("dataoutputset").trim().length() > 0) {
             String[] allDataOutputs = properties.get("dataoutputset").split( ",\\s*" );
@@ -3797,7 +3797,7 @@ public class Bpmn2JsonUnmarshaller {
                 InputOutputSpecification iospec = Bpmn2Factory.eINSTANCE.createInputOutputSpecification();
                 sp.setIoSpecification(iospec);
             }
-            
+
             OutputSet outset = Bpmn2Factory.eINSTANCE.createOutputSet();
             for(String dataOutput : allDataOutputs) {
             	if(dataOutput.trim().length() > 0) {
@@ -3806,7 +3806,7 @@ public class Bpmn2JsonUnmarshaller {
 	                if(dataOutputParts.length == 2) {
 	                	nextOut.setId(sp.getId() + "_" + dataOutputParts[0] + "OutputX");
 	                	nextOut.setName(dataOutputParts[0]);
-	                	
+
 	                	ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
 	                    EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
 	                            "http://www.jboss.org/drools", "dtype", false, false);
@@ -3824,7 +3824,7 @@ public class Bpmn2JsonUnmarshaller {
                                 "Object");
                         nextOut.getAnyAttribute().add(extensionEntry);
 	                }
-	                
+
 	                sp.getIoSpecification().getDataOutputs().add(nextOut);
 	                outset.getDataOutputRefs().add(nextOut);
             	}
@@ -3835,7 +3835,7 @@ public class Bpmn2JsonUnmarshaller {
             	sp.getIoSpecification().getOutputSets().add(Bpmn2Factory.eINSTANCE.createOutputSet());
             }
         }
-        
+
         // assignments
         if(properties.get("assignments") != null && properties.get("assignments").length() > 0 && sp.getIoSpecification() != null) {
             String[] allAssignments = properties.get("assignments").split( ",\\s*" );
@@ -3859,7 +3859,7 @@ public class Bpmn2JsonUnmarshaller {
                     		}
                     	}
                     }
-                    
+
                     Assignment a = Bpmn2Factory.eINSTANCE.createAssignment();
                     FormalExpression fromExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                     if(assignmentParts.length > 1) {
@@ -3870,13 +3870,13 @@ public class Bpmn2JsonUnmarshaller {
                     }
                     FormalExpression toExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                     toExpression.setBody(dia.getTargetRef().getId());
-                    
+
                     a.setFrom(fromExpression);
                     a.setTo(toExpression);
-                    
+
                     dia.getAssignment().add(a);
                     sp.getDataInputAssociations().add(dia);
-                    
+
 //                } else if(assignment.contains("<->")) {
 //                    String[] assignmentParts = assignment.split( "<->\\s*" );
 //                    DataInputAssociation dia = Bpmn2Factory.eINSTANCE.createDataInputAssociation();
@@ -3928,7 +3928,7 @@ public class Bpmn2JsonUnmarshaller {
                                 break;
                             }
                         }
-                        
+
                         ItemAwareElement ie = Bpmn2Factory.eINSTANCE.createItemAwareElement();
                         ie.setId(assignmentParts[1]);
                         doa.setTargetRef(ie);
@@ -3954,7 +3954,7 @@ public class Bpmn2JsonUnmarshaller {
                 }
             }
         }
-        
+
         // loop characteristics input
         if(properties.get("mitrigger") != null && properties.get("mitrigger").equals("true")) {
             if(properties.get("multipleinstancecollectioninput") != null && properties.get("multipleinstancecollectioninput").length() > 0) {
@@ -4177,7 +4177,7 @@ public class Bpmn2JsonUnmarshaller {
             _simulationElementParameters.put(sp.getId(), values);
         }
     }
-    
+
     protected void applyAdHocSubProcessProperties(AdHocSubProcess ahsp, Map<String, String> properties) {
     	if(properties.get("adhocordering") != null) {
     		if(properties.get("adhocordering").equals("Parallel")) {
@@ -4208,11 +4208,11 @@ public class Bpmn2JsonUnmarshaller {
 //                        properties.get("escalationcode"));
 //                    ((EscalationEventDefinition) ee.getEventDefinitions().get(0)).getAnyAttribute().add(extensionEntry);
 //                }
-//            } 
+//            }
 //        }
-        
+
     }
-    
+
     protected void applyAssociationProperties(Association association, Map<String, String> properties) {
     	if(properties.get("type") != null) {
     		ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
@@ -4232,11 +4232,11 @@ public class Bpmn2JsonUnmarshaller {
             }
         }
     }
-    
+
     protected void applyStartEventProperties(StartEvent se, Map<String, String> properties) {
         se.setIsInterrupting(Boolean.parseBoolean(properties.get("isinterrupting")));
     }
-    
+
     protected void applyMessageProperties(Message msg, Map<String, String> properties) {
         if(properties.get("name") != null) {
             msg.setName(escapeXmlString(properties.get("name")).replaceAll("\\r\\n|\\r|\\n", " "));
@@ -4345,7 +4345,7 @@ public class Bpmn2JsonUnmarshaller {
         }
         // default
         ta.setTextFormat("text/plain");
-        
+
         if(properties.get("bordercolor") != null && properties.get("bordercolor").length() > 0) {
             if(!(_elementColors.containsKey(ta.getId()))) {
                 List<String> colorsList = new ArrayList<String>();
@@ -4375,7 +4375,7 @@ public class Bpmn2JsonUnmarshaller {
             }
         }
     }
-    
+
     protected void applyGroupProperties(Group group, Map<String, String> properties) {
     	if(properties.get("name") != null) {
     		ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
@@ -4416,9 +4416,9 @@ public class Bpmn2JsonUnmarshaller {
             monitoring.getDocumentation().add(createDocumentation(properties.get("monitoring")));
             event.setMonitoring(monitoring);
         }
-        
+
     }
-    
+
     protected void applyCatchEventProperties(CatchEvent event, Map<String, String> properties) {
         if (properties.get("dataoutput") != null && !"".equals(properties.get("dataoutput"))) {
             String[] allDataOutputs = properties.get("dataoutput").split( ",\\s*" );
@@ -4454,7 +4454,7 @@ public class Bpmn2JsonUnmarshaller {
             }
             event.setOutputSet(outSet);
         }
-        
+
         if(properties.get("boundarycancelactivity") != null) {
         	ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
             EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
@@ -4491,7 +4491,7 @@ public class Bpmn2JsonUnmarshaller {
                 event.getDataOutputAssociation().add(doa);
             }
         }
-        
+
         try {
             if(event.getEventDefinitions() != null && event.getEventDefinitions().size() > 0) {
                 EventDefinition ed = event.getEventDefinitions().get(0);
@@ -4649,7 +4649,7 @@ public class Bpmn2JsonUnmarshaller {
         }
 
     }
-    
+
     protected void applyThrowEventProperties(ThrowEvent event, Map<String, String> properties) {
         if(properties.get("datainput") != null && properties.get("datainput").trim().length() > 0) {
             String[] allDataInputs = properties.get("datainput").split( ",\\s*" );
@@ -4778,13 +4778,13 @@ public class Bpmn2JsonUnmarshaller {
                     timeDateExpression.setBody(properties.get("timedate"));
                     ((TimerEventDefinition) event.getEventDefinitions().get(0)).setTimeDate(timeDateExpression);
                 }
-                
+
                 if(properties.get("timeduration") != null && !"".equals(properties.get("timeduration"))) {
                     FormalExpression timeDurationExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                     timeDurationExpression.setBody(properties.get("timeduration"));
                     ((TimerEventDefinition) event.getEventDefinitions().get(0)).setTimeDuration(timeDurationExpression);
                 }
-                
+
                 if(properties.get("timecycle") != null && !"".equals(properties.get("timecycle"))) {
                     FormalExpression timeCycleExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                     timeCycleExpression.setBody(properties.get("timecycle"));
@@ -4796,7 +4796,7 @@ public class Bpmn2JsonUnmarshaller {
             } else if (ed instanceof SignalEventDefinition) {
                 if(properties.get("signalref") != null && !"".equals(properties.get("signalref"))) {
                 	  ((SignalEventDefinition) ed).setSignalRef(properties.get("signalref"));
-                	
+
 //                    ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
 //                    EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
 //                                "http://www.jboss.org/drools", "signalrefname", false, false);
@@ -4951,7 +4951,7 @@ public class Bpmn2JsonUnmarshaller {
             }
 
         }
-        
+
         if(properties.get("isselectable") != null && properties.get("isselectable").length() > 0) {
         	ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
         	EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
@@ -4960,7 +4960,7 @@ public class Bpmn2JsonUnmarshaller {
         			properties.get("isselectable"));
         	baseElement.getAnyAttribute().add(extensionEntry);
         }
-        
+
         if(properties.get("bordercolor") != null && properties.get("bordercolor").length() > 0) {
             if(!(_elementColors.containsKey(baseElement.getId()))) {
                 List<String> colorsList = new ArrayList<String>();
@@ -4970,7 +4970,7 @@ public class Bpmn2JsonUnmarshaller {
                 _elementColors.get(baseElement.getId()).add("bordercolor:" + properties.get("bordercolor"));
             }
         }
-        
+
         if(properties.get("fontsize") != null && properties.get("fontsize").length() > 0) {
         	ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
         	EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
@@ -4979,7 +4979,7 @@ public class Bpmn2JsonUnmarshaller {
         			properties.get("fontsize"));
         	baseElement.getAnyAttribute().add(extensionEntry);
         }
-        
+
         if(properties.get("fontcolor") != null && properties.get("fontcolor").length() > 0) {
             if(!(_elementColors.containsKey(baseElement.getId()))) {
                 List<String> colorsList = new ArrayList<String>();
@@ -5004,7 +5004,7 @@ public class Bpmn2JsonUnmarshaller {
         SimpleFeatureMapEntry extensionEntry = new SimpleFeatureMapEntry(extensionAttribute,
             "http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd http://www.jboss.org/drools drools.xsd http://www.bpsim.org/schemas/1.0 bpsim.xsd");
         def.getAnyAttribute().add(extensionEntry);
-        
+
         //_currentResource.getContents().add(def);// hook the definitions object to the resource early.
     }
 
@@ -5020,7 +5020,7 @@ public class Bpmn2JsonUnmarshaller {
             process.setAuditing(audit);
         }
         process.setProcessType(ProcessType.getByName(properties.get("processtype")));
-        process.setIsClosed(Boolean.parseBoolean(properties.get("isclosed")));  
+        process.setIsClosed(Boolean.parseBoolean(properties.get("isclosed")));
         process.setIsExecutable(Boolean.parseBoolean(properties.get("executable")));
         // get the drools-specific extension packageName attribute to Process if defined
         if(properties.get("package") != null && properties.get("package").length() > 0) {
@@ -5031,7 +5031,7 @@ public class Bpmn2JsonUnmarshaller {
                 properties.get("package"));
             process.getAnyAttribute().add(extensionEntry);
         }
-        
+
         // add version attrbute to process
         if(properties.get("version") != null && properties.get("version").length() > 0) {
             ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
@@ -5041,13 +5041,13 @@ public class Bpmn2JsonUnmarshaller {
                 properties.get("version"));
             process.getAnyAttribute().add(extensionEntry);
         }
-        
+
         if (properties.get("monitoring") != null && !"".equals(properties.get("monitoring"))) {
             Monitoring monitoring = Bpmn2Factory.eINSTANCE.createMonitoring();
             monitoring.getDocumentation().add(createDocumentation(properties.get("monitoring")));
             process.setMonitoring(monitoring);
         }
-        
+
         // import extension elements
         if(properties.get("imports") != null && properties.get("imports").length() > 0) {
             String[] allImports = properties.get("imports").split( ",\\s*" );
@@ -5087,7 +5087,7 @@ public class Bpmn2JsonUnmarshaller {
                 }
             }
         }
-        
+
         // globals extension elements
         if(properties.get("globals") != null && properties.get("globals").length() > 0) {
             String[] allGlobals = properties.get("globals").split( ",\\s*" );
@@ -5100,7 +5100,7 @@ public class Bpmn2JsonUnmarshaller {
                     if(process.getExtensionValues() == null || process.getExtensionValues().size() < 1) {
                     	ExtensionAttributeValue extensionElement = Bpmn2Factory.eINSTANCE.createExtensionAttributeValue();
                     	process.getExtensionValues().add(extensionElement);
-                    } 
+                    }
                     FeatureMap.Entry extensionElementEntry = new SimpleFeatureMapEntry(
                             (Internal) DroolsPackage.Literals.DOCUMENT_ROOT__GLOBAL, globalType);
                     process.getExtensionValues().get(0).getValue().add(extensionElementEntry);
@@ -5111,14 +5111,14 @@ public class Bpmn2JsonUnmarshaller {
                     if(process.getExtensionValues() == null || process.getExtensionValues().size() < 1) {
                     	ExtensionAttributeValue extensionElement = Bpmn2Factory.eINSTANCE.createExtensionAttributeValue();
                     	process.getExtensionValues().add(extensionElement);
-                    } 
+                    }
                     FeatureMap.Entry extensionElementEntry = new SimpleFeatureMapEntry(
                             (Internal) DroolsPackage.Literals.DOCUMENT_ROOT__GLOBAL, globalType);
                     process.getExtensionValues().get(0).getValue().add(extensionElementEntry);
                 }
             }
         }
-        
+
         // simulation properties
         if(properties.get("timeunit") != null && properties.get("timeunit").length() > 0) {
         	_simulationScenarioParameters.setBaseTimeUnit(TimeUnit.getByName(properties.get("timeunit")));
@@ -5159,14 +5159,14 @@ public class Bpmn2JsonUnmarshaller {
             task.getAnyAttribute().add(extensionEntry);
         }
     }
-    
+
     protected void applyScriptTaskProperties(ScriptTask scriptTask, Map<String, String> properties) {
         if(properties.get("script") != null && properties.get("script").length() > 0) {
             //String scriptStr = properties.get("script").replaceAll("\\\\n", "\n");
             String scriptStr = replaceScriptEscapeAndNewLines(properties.get("script"));
         	scriptTask.setScript(wrapInCDATABlock(scriptStr));
         }
-        
+
         if(properties.get("script_language") != null && properties.get("script_language").length() > 0) {
             String scriptLanguage;
             if(properties.get("script_language").equals("java")) {
@@ -5182,7 +5182,7 @@ public class Bpmn2JsonUnmarshaller {
             scriptTask.setScriptFormat(scriptLanguage);
         }
     }
-    
+
     public void applyServiceTaskProperties(ServiceTask serviceTask,  Map<String, String> properties) {
         if(properties.get("serviceimplementation") != null) {
             serviceTask.setImplementation(properties.get("serviceimplementation"));
@@ -5191,7 +5191,7 @@ public class Bpmn2JsonUnmarshaller {
                     "http://www.jboss.org/drools", "serviceimplementation", false, false);
             SimpleFeatureMapEntry extensionEntry = new SimpleFeatureMapEntry(extensionAttribute,
                     properties.get("serviceimplementation"));
-            serviceTask.getAnyAttribute().add(extensionEntry); 
+            serviceTask.getAnyAttribute().add(extensionEntry);
         }
         if(properties.get("serviceoperation") != null) {
             ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
@@ -5210,7 +5210,7 @@ public class Bpmn2JsonUnmarshaller {
             serviceTask.getAnyAttribute().add(extensionEntry);
         }
     }
-    
+
     public void applyReceiveTaskProperties(ReceiveTask receiveTask, Map<String, String> properties) {
     	if(properties.get("messageref") != null && properties.get("messageref").length() > 0) {
     		ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
@@ -5222,7 +5222,7 @@ public class Bpmn2JsonUnmarshaller {
     	}
     	receiveTask.setImplementation("Other");
     }
-    
+
     public void applySendTaskProperties(SendTask sendTask, Map<String, String> properties) {
     	if(properties.get("messageref") != null && properties.get("messageref").length() > 0) {
     		ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
@@ -5255,7 +5255,7 @@ public class Bpmn2JsonUnmarshaller {
             lane.setName("");
         }
     }
-    
+
     protected void applyCallActivityProperties(CallActivity callActivity, Map<String, String> properties) {
     	if(properties.get("name") != null) {
     		callActivity.setName(escapeXmlString(properties.get("name")).replaceAll("\\r\\n|\\r|\\n", " "));
@@ -5275,7 +5275,7 @@ public class Bpmn2JsonUnmarshaller {
         } else {
         	callActivity.setName("");
         }
-    	
+
     	if(properties.get("independent") != null && properties.get("independent").length() > 0) {
     		ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
             EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
@@ -5284,7 +5284,7 @@ public class Bpmn2JsonUnmarshaller {
                     properties.get("independent"));
             callActivity.getAnyAttribute().add(extensionEntry);
     	}
-    	
+
     	if(properties.get("waitforcompletion") != null && properties.get("waitforcompletion").length() > 0) {
     		ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
             EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
@@ -5293,7 +5293,7 @@ public class Bpmn2JsonUnmarshaller {
                     properties.get("waitforcompletion"));
             callActivity.getAnyAttribute().add(extensionEntry);
     	}
-    	
+
     	if(properties.get("calledelement") != null && properties.get("calledelement").length() > 0) {
     		callActivity.setCalledElement(properties.get("calledelement"));
     	}
@@ -5312,7 +5312,7 @@ public class Bpmn2JsonUnmarshaller {
                     (Internal) DroolsPackage.Literals.DOCUMENT_ROOT__META_DATA, metadata);
             callActivity.getExtensionValues().get(0).getValue().add(extensionElementEntry);
         }
-    	
+
     	//callActivity data input set
         if(properties.get("datainputset") != null && properties.get("datainputset").trim().length() > 0) {
             String[] allDataInputs = properties.get("datainputset").split( ",\\s*" );
@@ -5328,7 +5328,7 @@ public class Bpmn2JsonUnmarshaller {
 	                if(dataInputParts.length == 2) {
 	                	nextInput.setId(callActivity.getId() + "_" + dataInputParts[0] + "InputX");
 	                	nextInput.setName(dataInputParts[0]);
-	                	
+
 	                	ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
 	                    EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
 	                            "http://www.jboss.org/drools", "dtype", false, false);
@@ -5356,7 +5356,7 @@ public class Bpmn2JsonUnmarshaller {
             	callActivity.getIoSpecification().getInputSets().add(Bpmn2Factory.eINSTANCE.createInputSet());
             }
         }
-        
+
         //callActivity data output set
         if(properties.get("dataoutputset") != null && properties.get("dataoutputset").trim().length() > 0) {
             String[] allDataOutputs = properties.get("dataoutputset").split( ",\\s*" );
@@ -5373,7 +5373,7 @@ public class Bpmn2JsonUnmarshaller {
 	                if(dataOutputParts.length == 2) {
 	                	nextOut.setId(callActivity.getId() + "_" + dataOutputParts[0] + "OutputX");
 	                	nextOut.setName(dataOutputParts[0]);
-	                	
+
 	                	ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
 	                    EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
 	                            "http://www.jboss.org/drools", "dtype", false, false);
@@ -5391,7 +5391,7 @@ public class Bpmn2JsonUnmarshaller {
                                 "Object");
                         nextOut.getAnyAttribute().add(extensionEntry);
 	                }
-	                
+
 	                callActivity.getIoSpecification().getDataOutputs().add(nextOut);
 	                outset.getDataOutputRefs().add(nextOut);
             	}
@@ -5402,7 +5402,7 @@ public class Bpmn2JsonUnmarshaller {
             	callActivity.getIoSpecification().getOutputSets().add(Bpmn2Factory.eINSTANCE.createOutputSet());
             }
         }
-        
+
         //callActivity assignments
         if(properties.get("assignments") != null && properties.get("assignments").length() > 0) {
             String[] allAssignments = properties.get("assignments").split( ",\\s*" );
@@ -5428,7 +5428,7 @@ public class Bpmn2JsonUnmarshaller {
                     		}
                     	}
                     }
-                    
+
                     Assignment a = Bpmn2Factory.eINSTANCE.createAssignment();
                     FormalExpression fromExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                     if(assignmentParts.length > 1) {
@@ -5439,13 +5439,13 @@ public class Bpmn2JsonUnmarshaller {
                     }
                     FormalExpression toExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                     toExpression.setBody(dia.getTargetRef().getId());
-                    
+
                     a.setFrom(fromExpression);
                     a.setTo(toExpression);
-                    
+
                     dia.getAssignment().add(a);
                     callActivity.getDataInputAssociations().add(dia);
-                    
+
 //                } else if(assignment.contains("<->")) {
 //                    String[] assignmentParts = assignment.split( "<->\\s*" );
 //                    DataInputAssociation dia = Bpmn2Factory.eINSTANCE.createDataInputAssociation();
@@ -5498,7 +5498,7 @@ public class Bpmn2JsonUnmarshaller {
                                 break;
                             }
                         }
-                        
+
                         ItemAwareElement ie = Bpmn2Factory.eINSTANCE.createItemAwareElement();
                         ie.setId(assignmentParts[1]);
                         doa.setTargetRef(ie);
@@ -5525,14 +5525,14 @@ public class Bpmn2JsonUnmarshaller {
                 }
             }
         }
-        
+
         // process on-entry and on-exit actions as custom elements
         if(properties.get("onentryactions") != null && properties.get("onentryactions").length() > 0) {
             String[] allActions = properties.get("onentryactions").split( "\\|\\s*" );
             for(String action : allActions) {
                 OnEntryScriptType onEntryScript = DroolsFactory.eINSTANCE.createOnEntryScriptType();
                 onEntryScript.setScript(wrapInCDATABlock(replaceScriptEscapeAndNewLines(action)));
-                
+
                 String scriptLanguage = "";
                 if(properties.get("script_language").equals("java")) {
                     scriptLanguage = "http://www.java.com/java";
@@ -5544,8 +5544,8 @@ public class Bpmn2JsonUnmarshaller {
                     // default to java
                     scriptLanguage = "http://www.java.com/java";
                 }
-                onEntryScript.setScriptFormat(scriptLanguage); 
-                
+                onEntryScript.setScriptFormat(scriptLanguage);
+
                 if(callActivity.getExtensionValues() == null || callActivity.getExtensionValues().size() < 1) {
                 	ExtensionAttributeValue extensionElement = Bpmn2Factory.eINSTANCE.createExtensionAttributeValue();
                 	callActivity.getExtensionValues().add(extensionElement);
@@ -5555,13 +5555,13 @@ public class Bpmn2JsonUnmarshaller {
                 callActivity.getExtensionValues().get(0).getValue().add(extensionElementEntry);
             }
         }
-        
+
         if(properties.get("onexitactions") != null && properties.get("onexitactions").length() > 0) {
             String[] allActions = properties.get("onexitactions").split( "\\|\\s*" );
             for(String action : allActions) {
                 OnExitScriptType onExitScript = DroolsFactory.eINSTANCE.createOnExitScriptType();
                 onExitScript.setScript(wrapInCDATABlock(replaceScriptEscapeAndNewLines(action)));
-                
+
                 String scriptLanguage = "";
                 if(properties.get("script_language").equals("java")) {
                     scriptLanguage = "http://www.java.com/java";
@@ -5573,8 +5573,8 @@ public class Bpmn2JsonUnmarshaller {
                     // default to java
                     scriptLanguage = "http://www.java.com/java";
                 }
-                onExitScript.setScriptFormat(scriptLanguage); 
-                
+                onExitScript.setScriptFormat(scriptLanguage);
+
                 if(callActivity.getExtensionValues() == null || callActivity.getExtensionValues().size() < 1) {
                 	ExtensionAttributeValue extensionElement = Bpmn2Factory.eINSTANCE.createExtensionAttributeValue();
                 	callActivity.getExtensionValues().add(extensionElement);
@@ -5694,7 +5694,7 @@ public class Bpmn2JsonUnmarshaller {
             taskNameDataInput = Bpmn2Factory.eINSTANCE.createDataInput();
             taskNameDataInput.setId(task.getId() + "_TaskNameInputX");
             taskNameDataInput.setName("TaskName");
-            
+
             if(task.getIoSpecification() == null) {
                 InputOutputSpecification iospec = Bpmn2Factory.eINSTANCE.createInputOutputSpecification();
                 task.setIoSpecification(iospec);
@@ -5703,7 +5703,7 @@ public class Bpmn2JsonUnmarshaller {
             // taskName also needs to be in dataInputAssociation
             DataInputAssociation taskNameDataInputAssociation = Bpmn2Factory.eINSTANCE.createDataInputAssociation();
             taskNameDataInputAssociation.setTargetRef(taskNameDataInput);
-        
+
             Assignment taskNameAssignment = Bpmn2Factory.eINSTANCE.createAssignment();
             FormalExpression fromExp = Bpmn2Factory.eINSTANCE.createFormalExpression();
             fromExp.setBody(properties.get("taskname").replaceAll("&","").replaceAll(" ", ""));
@@ -5715,7 +5715,7 @@ public class Bpmn2JsonUnmarshaller {
 
             task.getDataInputAssociations().add(taskNameDataInputAssociation);
         }
-        
+
         //process lanes
         if(properties.get("lanes") != null && properties.get("lanes").length() > 0) {
             ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
@@ -5740,7 +5740,7 @@ public class Bpmn2JsonUnmarshaller {
                 (Internal) DroolsPackage.Literals.DOCUMENT_ROOT__META_DATA, metadata);
             task.getExtensionValues().get(0).getValue().add(extensionElementEntry);
         }
-        
+
         //process data input set
         if(properties.get("datainputset") != null && properties.get("datainputset").trim().length() > 0) {
             String[] allDataInputs = properties.get("datainputset").split( ",\\s*" );
@@ -5756,7 +5756,7 @@ public class Bpmn2JsonUnmarshaller {
 	                if(dataInputParts.length == 2) {
 	                	nextInput.setId(task.getId() + "_" + dataInputParts[0] + (dataInputParts[0].endsWith("InputX") ? "" : "InputX"));
 	                	nextInput.setName(dataInputParts[0]);
-	                	
+
 	                	ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
 	                    EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
 	                            "http://www.jboss.org/drools", "dtype", false, false);
@@ -5774,7 +5774,7 @@ public class Bpmn2JsonUnmarshaller {
                                 "Object");
                         nextInput.getAnyAttribute().add(extensionEntry);
 	                }
-	                
+
 	                task.getIoSpecification().getDataInputs().add(nextInput);
 	                inset.getDataInputRefs().add(nextInput);
             	}
@@ -5789,7 +5789,7 @@ public class Bpmn2JsonUnmarshaller {
                 task.getIoSpecification().getInputSets().add(Bpmn2Factory.eINSTANCE.createInputSet());
             }
         }
-        
+
         //process data output set
         if(properties.get("dataoutputset") != null && properties.get("dataoutputset").trim().length() > 0) {
             String[] allDataOutputs = properties.get("dataoutputset").split( ",\\s*" );
@@ -5797,7 +5797,7 @@ public class Bpmn2JsonUnmarshaller {
                 InputOutputSpecification iospec = Bpmn2Factory.eINSTANCE.createInputOutputSpecification();
                 task.setIoSpecification(iospec);
             }
-            
+
             OutputSet outset = Bpmn2Factory.eINSTANCE.createOutputSet();
             for(String dataOutput : allDataOutputs) {
             	if(dataOutput.trim().length() > 0) {
@@ -5806,7 +5806,7 @@ public class Bpmn2JsonUnmarshaller {
 	                if(dataOutputParts.length == 2) {
 	                	nextOut.setId(task.getId() + "_" + dataOutputParts[0] + (dataOutputParts[0].endsWith("OutputX") ? "" : "OutputX"));
 	                	nextOut.setName(dataOutputParts[0]);
-	                	
+
 	                	ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
 	                    EAttributeImpl extensionAttribute = (EAttributeImpl) metadata.demandFeature(
 	                            "http://www.jboss.org/drools", "dtype", false, false);
@@ -5824,7 +5824,7 @@ public class Bpmn2JsonUnmarshaller {
                                 "Object");
                         nextOut.getAnyAttribute().add(extensionEntry);
 	                }
-	                
+
 	                task.getIoSpecification().getDataOutputs().add(nextOut);
 	                outset.getDataOutputRefs().add(nextOut);
             	}
@@ -5835,7 +5835,7 @@ public class Bpmn2JsonUnmarshaller {
                 task.getIoSpecification().getOutputSets().add(Bpmn2Factory.eINSTANCE.createOutputSet());
             }
         }
-        
+
         //process assignments
         if(properties.get("assignments") != null && properties.get("assignments").length() > 0) {
             String[] allAssignments = properties.get("assignments").split( ",\\s*" );
@@ -5875,7 +5875,7 @@ public class Bpmn2JsonUnmarshaller {
                         InputSet inset = task.getIoSpecification().getInputSets().get(0);
                         inset.getDataInputRefs().add(assignmentTaskNameDataInput);
                     }
-                    
+
                     Assignment a = Bpmn2Factory.eINSTANCE.createAssignment();
                     FormalExpression fromExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                     if(assignmentParts.length > 1) {
@@ -5891,13 +5891,13 @@ public class Bpmn2JsonUnmarshaller {
                     }
                     FormalExpression toExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                     toExpression.setBody(dia.getTargetRef().getId());
-                    
+
                     a.setFrom(fromExpression);
                     a.setTo(toExpression);
-                    
+
                     dia.getAssignment().add(a);
                     task.getDataInputAssociations().add(dia);
-                    
+
 //                } else if(assignment.contains("<->")) {
 //                    String[] assignmentParts = assignment.split( "<->\\s*" );
 //                    DataInputAssociation dia = Bpmn2Factory.eINSTANCE.createDataInputAssociation();
@@ -5948,7 +5948,7 @@ public class Bpmn2JsonUnmarshaller {
                                 break;
                             }
                         }
-                        
+
                         ItemAwareElement ie = Bpmn2Factory.eINSTANCE.createItemAwareElement();
                         ie.setId(assignmentParts[1]);
                         doa.setTargetRef(ie);
@@ -5973,12 +5973,12 @@ public class Bpmn2JsonUnmarshaller {
                     // TODO throw exception here?
                 }
             }
-            
+
             // check if multiple taskname datainput associations exist and remove them
             List<DataInputAssociation> dataInputAssociations = task.getDataInputAssociations();
             boolean haveTaskNameInput = false;
-            for(Iterator<DataInputAssociation> itr = dataInputAssociations.iterator(); itr.hasNext();)  
-            {  
+            for(Iterator<DataInputAssociation> itr = dataInputAssociations.iterator(); itr.hasNext();)
+            {
                 DataInputAssociation da = itr.next();
                 if(da.getAssignment() != null && da.getAssignment().size() > 0) {
                     Assignment a = da.getAssignment().get(0);
@@ -5990,16 +5990,16 @@ public class Bpmn2JsonUnmarshaller {
                         }
                     }
                 }
-            }  
+            }
         }
-        
+
         // process on-entry and on-exit actions as custom elements
         if(properties.get("onentryactions") != null && properties.get("onentryactions").length() > 0) {
             String[] allActions = properties.get("onentryactions").split( "\\|\\s*" );
             for(String action : allActions) {
                 OnEntryScriptType onEntryScript = DroolsFactory.eINSTANCE.createOnEntryScriptType();
                 onEntryScript.setScript(wrapInCDATABlock(replaceScriptEscapeAndNewLines(action)));
-                
+
                 String scriptLanguage = "";
                 if(properties.get("script_language").equals("java")) {
                     scriptLanguage = "http://www.java.com/java";
@@ -6011,8 +6011,8 @@ public class Bpmn2JsonUnmarshaller {
                     // default to java
                     scriptLanguage = "http://www.java.com/java";
                 }
-                onEntryScript.setScriptFormat(scriptLanguage); 
-                
+                onEntryScript.setScriptFormat(scriptLanguage);
+
                 if(task.getExtensionValues() == null || task.getExtensionValues().size() < 1) {
                 	ExtensionAttributeValue extensionElement = Bpmn2Factory.eINSTANCE.createExtensionAttributeValue();
                 	task.getExtensionValues().add(extensionElement);
@@ -6022,13 +6022,13 @@ public class Bpmn2JsonUnmarshaller {
                 task.getExtensionValues().get(0).getValue().add(extensionElementEntry);
             }
         }
-        
+
         if(properties.get("onexitactions") != null && properties.get("onexitactions").length() > 0) {
             String[] allActions = properties.get("onexitactions").split( "\\|\\s*" );
             for(String action : allActions) {
                 OnExitScriptType onExitScript = DroolsFactory.eINSTANCE.createOnExitScriptType();
                 onExitScript.setScript(wrapInCDATABlock(replaceScriptEscapeAndNewLines(action)));
-                
+
                 String scriptLanguage;
                 if(properties.get("script_language").equals("java")) {
                     scriptLanguage = "http://www.java.com/java";
@@ -6040,8 +6040,8 @@ public class Bpmn2JsonUnmarshaller {
                     // default to java
                     scriptLanguage = "http://www.java.com/java";
                 }
-                onExitScript.setScriptFormat(scriptLanguage); 
-            
+                onExitScript.setScriptFormat(scriptLanguage);
+
                 if(task.getExtensionValues() == null || task.getExtensionValues().size() < 1) {
                 	ExtensionAttributeValue extensionElement = Bpmn2Factory.eINSTANCE.createExtensionAttributeValue();
                 	task.getExtensionValues().add(extensionElement);
@@ -6073,7 +6073,7 @@ public class Bpmn2JsonUnmarshaller {
                    buff.toString());
             task.getAnyAttribute().add(extensionEntry);
         }
-        
+
         // simulation
         if(properties.get("distributiontype") != null && properties.get("distributiontype").length() > 0) {
         	TimeParameters timeParams = BpsimFactory.eINSTANCE.createTimeParameters();
@@ -6145,7 +6145,7 @@ public class Bpmn2JsonUnmarshaller {
             _simulationElementParameters.put(task.getId(), values);
         }
     }
-    
+
     protected void applyUserTaskProperties(UserTask task, Map<String, String> properties) {
         if(properties.get("actors") != null && properties.get("actors").length() > 0) {
             String[] allActors = properties.get("actors").split( ",\\s*" );
@@ -6171,7 +6171,7 @@ public class Bpmn2JsonUnmarshaller {
                 // default to java
                 scriptLanguage = "http://www.java.com/java";
             }
-            
+
             ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
             EAttributeImpl scriptLanguageElement = (EAttributeImpl) metadata.demandFeature(
                     "http://www.jboss.org/drools", "scriptFormat", false   , false);
@@ -6179,7 +6179,7 @@ public class Bpmn2JsonUnmarshaller {
                     scriptLanguage);
             task.getAnyAttribute().add(extensionEntry);
         }
-        
+
         if(properties.get("groupid") != null && properties.get("groupid").length() > 0) {
         	if(task.getIoSpecification() == null) {
                 InputOutputSpecification iospec = Bpmn2Factory.eINSTANCE.createInputOutputSpecification();
@@ -6195,21 +6195,21 @@ public class Bpmn2JsonUnmarshaller {
         			break;
         		}
         	}
-        	
+
         	if(!foundGroupIdInput) {
         		DataInput d = Bpmn2Factory.eINSTANCE.createDataInput();
                 d.setId(task.getId() + "_" + "GroupId" + "InputX");
                 d.setName("GroupId");
                 task.getIoSpecification().getDataInputs().add(d);
                 foundInput = d;
-                
+
                 if(task.getIoSpecification().getInputSets() == null || task.getIoSpecification().getInputSets().size() < 1) {
                 	InputSet inset = Bpmn2Factory.eINSTANCE.createInputSet();
                 	task.getIoSpecification().getInputSets().add(inset);
                 }
                 task.getIoSpecification().getInputSets().get(0).getDataInputRefs().add(d);
         	}
-        	
+
         	boolean foundGroupIdAssociation = false;
         	List<DataInputAssociation> inputAssociations = task.getDataInputAssociations();
         	for(DataInputAssociation da : inputAssociations) {
@@ -6218,21 +6218,21 @@ public class Bpmn2JsonUnmarshaller {
         			((FormalExpression) da.getAssignment().get(0).getFrom()).setBody(wrapInCDATABlock(properties.get("groupid")));
         		}
         	}
-        	
+
         	if(!foundGroupIdAssociation) {
         		DataInputAssociation dia = Bpmn2Factory.eINSTANCE.createDataInputAssociation();
         		dia.setTargetRef(foundInput);
-        		
+
         		Assignment a = Bpmn2Factory.eINSTANCE.createAssignment();
                 FormalExpression groupFromExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                 groupFromExpression.setBody(wrapInCDATABlock(properties.get("groupid")));
-                
+
                 FormalExpression groupToExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                 groupToExpression.setBody(foundInput.getId());
-                
+
                 a.setFrom(groupFromExpression);
                 a.setTo(groupToExpression);
-                
+
                 dia.getAssignment().add(a);
                 task.getDataInputAssociations().add(dia);
         	}
@@ -6255,21 +6255,21 @@ public class Bpmn2JsonUnmarshaller {
         			break;
         		}
         	}
-        	
+
         	if(!foundSkippableInput) {
         		DataInput d = Bpmn2Factory.eINSTANCE.createDataInput();
                 d.setId(task.getId() + "_" + "Skippable" + "InputX");
                 d.setName("Skippable");
                 task.getIoSpecification().getDataInputs().add(d);
                 foundInput = d;
-                
+
                 if(task.getIoSpecification().getInputSets() == null || task.getIoSpecification().getInputSets().size() < 1) {
                 	InputSet inset = Bpmn2Factory.eINSTANCE.createInputSet();
                 	task.getIoSpecification().getInputSets().add(inset);
                 }
                 task.getIoSpecification().getInputSets().get(0).getDataInputRefs().add(d);
         	}
-        	
+
         	boolean foundSkippableAssociation = false;
         	List<DataInputAssociation> inputAssociations = task.getDataInputAssociations();
         	for(DataInputAssociation da : inputAssociations) {
@@ -6278,26 +6278,26 @@ public class Bpmn2JsonUnmarshaller {
         			((FormalExpression) da.getAssignment().get(0).getFrom()).setBody( skippableStr );
         		}
         	}
-        	
+
         	if(!foundSkippableAssociation) {
         		DataInputAssociation dia = Bpmn2Factory.eINSTANCE.createDataInputAssociation();
         		dia.setTargetRef(foundInput);
-        		
+
         		Assignment a = Bpmn2Factory.eINSTANCE.createAssignment();
                 FormalExpression skippableFromExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                 skippableFromExpression.setBody( skippableStr );
-                
+
                 FormalExpression skippableToExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                 skippableToExpression.setBody(foundInput.getId());
-                
+
                 a.setFrom(skippableFromExpression);
                 a.setTo(skippableToExpression);
-                
+
                 dia.getAssignment().add(a);
                 task.getDataInputAssociations().add(dia);
         	}
         }
-        
+
         if(properties.get("subject") != null && properties.get("subject").length() > 0) {
         	if(task.getIoSpecification() == null) {
                 InputOutputSpecification iospec = Bpmn2Factory.eINSTANCE.createInputOutputSpecification();
@@ -6313,21 +6313,21 @@ public class Bpmn2JsonUnmarshaller {
         			break;
         		}
         	}
-        	
+
         	if(!foundCommentInput) {
         		DataInput d = Bpmn2Factory.eINSTANCE.createDataInput();
                 d.setId(task.getId() + "_" + "Comment" + "InputX");
                 d.setName("Comment");
                 task.getIoSpecification().getDataInputs().add(d);
                 foundInput = d;
-                
+
                 if(task.getIoSpecification().getInputSets() == null || task.getIoSpecification().getInputSets().size() < 1) {
                 	InputSet inset = Bpmn2Factory.eINSTANCE.createInputSet();
                 	task.getIoSpecification().getInputSets().add(inset);
                 }
                 task.getIoSpecification().getInputSets().get(0).getDataInputRefs().add(d);
         	}
-        	
+
         	boolean foundCommentAssociation = false;
         	List<DataInputAssociation> inputAssociations = task.getDataInputAssociations();
         	for(DataInputAssociation da : inputAssociations) {
@@ -6336,21 +6336,21 @@ public class Bpmn2JsonUnmarshaller {
         			((FormalExpression) da.getAssignment().get(0).getFrom()).setBody(wrapInCDATABlock(properties.get("subject")));
         		}
         	}
-        	
+
         	if(!foundCommentAssociation) {
         		DataInputAssociation dia = Bpmn2Factory.eINSTANCE.createDataInputAssociation();
         		dia.setTargetRef(foundInput);
-        		
+
         		Assignment a = Bpmn2Factory.eINSTANCE.createAssignment();
                 FormalExpression commentFromExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                 commentFromExpression.setBody(wrapInCDATABlock(properties.get("subject")));
-                
+
                 FormalExpression commentToExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                 commentToExpression.setBody(foundInput.getId());
-                
+
                 a.setFrom(commentFromExpression);
                 a.setTo(commentToExpression);
-                
+
                 dia.getAssignment().add(a);
                 task.getDataInputAssociations().add(dia);
         	}
@@ -6413,7 +6413,7 @@ public class Bpmn2JsonUnmarshaller {
                 task.getDataInputAssociations().add(dia);
             }
         }
-        
+
         if(properties.get("priority") != null && properties.get("priority").length() > 0) {
         	if(task.getIoSpecification() == null) {
                 InputOutputSpecification iospec = Bpmn2Factory.eINSTANCE.createInputOutputSpecification();
@@ -6429,21 +6429,21 @@ public class Bpmn2JsonUnmarshaller {
         			break;
         		}
         	}
-        	
+
         	if(!foundPriorityInput) {
         		DataInput d = Bpmn2Factory.eINSTANCE.createDataInput();
                 d.setId(task.getId() + "_" + "Priority" + "InputX");
                 d.setName("Priority");
                 task.getIoSpecification().getDataInputs().add(d);
                 foundInput = d;
-                
+
                 if(task.getIoSpecification().getInputSets() == null || task.getIoSpecification().getInputSets().size() < 1) {
                 	InputSet inset = Bpmn2Factory.eINSTANCE.createInputSet();
                 	task.getIoSpecification().getInputSets().add(inset);
                 }
                 task.getIoSpecification().getInputSets().get(0).getDataInputRefs().add(d);
         	}
-        	
+
         	boolean foundPriorityAssociation = false;
         	List<DataInputAssociation> inputAssociations = task.getDataInputAssociations();
         	for(DataInputAssociation da : inputAssociations) {
@@ -6452,21 +6452,21 @@ public class Bpmn2JsonUnmarshaller {
         			((FormalExpression) da.getAssignment().get(0).getFrom()).setBody(properties.get("priority"));
         		}
         	}
-        	
+
         	if(!foundPriorityAssociation) {
         		DataInputAssociation dia = Bpmn2Factory.eINSTANCE.createDataInputAssociation();
         		dia.setTargetRef(foundInput);
-        		
+
         		Assignment a = Bpmn2Factory.eINSTANCE.createAssignment();
                 FormalExpression priorityFromExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                 priorityFromExpression.setBody(properties.get("priority"));
-                
+
                 FormalExpression priorityToExpression = Bpmn2Factory.eINSTANCE.createFormalExpression();
                 priorityToExpression.setBody(foundInput.getId());
-                
+
                 a.setFrom(priorityFromExpression);
                 a.setTo(priorityToExpression);
-                
+
                 dia.getAssignment().add(a);
                 task.getDataInputAssociations().add(dia);
         	}
@@ -6890,9 +6890,9 @@ public class Bpmn2JsonUnmarshaller {
                     }
         		}
         	}
-        	
+
         	for(DataInputAssociation tr : incompleteAssociations) {
-        		if(task.getDataInputAssociations() != null) 
+        		if(task.getDataInputAssociations() != null)
         			task.getDataInputAssociations().remove(tr);
         	}
         }
@@ -6928,7 +6928,7 @@ public class Bpmn2JsonUnmarshaller {
                 }
         	}
         }
-        
+
         for(DataInput trdin : toRemoveDataInputs) {
         	if(task.getIoSpecification() != null && task.getIoSpecification().getDataInputs() != null)
         		if(task.getIoSpecification().getInputSets().size() > 0) {
@@ -6936,7 +6936,7 @@ public class Bpmn2JsonUnmarshaller {
         		}
         		task.getIoSpecification().getDataInputs().remove(trdin);
         }
-        
+
         // simulation properties
         ResourceParameters resourceParameters = BpsimFactory.eINSTANCE.createResourceParameters();
         if(properties.get("quantity") != null && properties.get("quantity").length() > 0) {
@@ -6947,7 +6947,7 @@ public class Bpmn2JsonUnmarshaller {
         	quantityParam.getParameterValue().add(quantityValueParam);
         	resourceParameters.setQuantity(quantityParam);
         }
-        
+
         if(properties.get("workinghours") != null && properties.get("workinghours").length() > 0) {
         	Parameter workingHoursParam = BpsimFactory.eINSTANCE.createParameter();
         	FloatingParameterType workingHoursValueParam = BpsimFactory.eINSTANCE.createFloatingParameterType();
@@ -6956,7 +6956,7 @@ public class Bpmn2JsonUnmarshaller {
         	workingHoursParam.getParameterValue().add(workingHoursValueParam);
         	resourceParameters.setAvailability(workingHoursParam);
         }
-        
+
         if(_simulationElementParameters.containsKey(task.getId())) {
         	_simulationElementParameters.get(task.getId()).add(resourceParameters);
         } else {
@@ -6965,7 +6965,7 @@ public class Bpmn2JsonUnmarshaller {
         	_simulationElementParameters.put(task.getId(), values);
         }
     }
-    
+
     protected void applyGatewayProperties(Gateway gateway, Map<String, String> properties) {
         if(properties.get("name") != null && properties.get("name").length() > 0) {
             gateway.setName(escapeXmlString(properties.get("name")).replaceAll("\\r\\n|\\r|\\n", " "));
@@ -7076,7 +7076,7 @@ public class Bpmn2JsonUnmarshaller {
             FormalExpression expr = Bpmn2Factory.eINSTANCE.createFormalExpression();
             String scriptStr = properties.get("conditionexpression").replaceAll("\\\\n", "\n");
             expr.setBody(wrapInCDATABlock(scriptStr));
-            // check if language was specified 
+            // check if language was specified
             if (properties.get("conditionexpressionlanguage") != null && !"".equals(properties.get("conditionexpressionlanguage"))) {
                 String languageStr;
                 if(properties.get("conditionexpressionlanguage").equals("drools")) {
@@ -7095,7 +7095,7 @@ public class Bpmn2JsonUnmarshaller {
             }
             sequenceFlow.setConditionExpression(expr);
         }
-        
+
         if (properties.get("priority") != null && !"".equals(properties.get("priority"))) {
             ExtendedMetaData metadata = ExtendedMetaData.INSTANCE;
             EAttributeImpl priorityElement = (EAttributeImpl) metadata.demandFeature(
@@ -7104,7 +7104,7 @@ public class Bpmn2JsonUnmarshaller {
                     properties.get("priority"));
             sequenceFlow.getAnyAttribute().add(extensionEntry);
         }
-        
+
         if (properties.get("monitoring") != null && !"".equals(properties.get("monitoring"))) {
             Monitoring monitoring = Bpmn2Factory.eINSTANCE.createMonitoring();
             monitoring.getDocumentation().add(createDocumentation(properties.get("monitoring")));
@@ -7112,7 +7112,7 @@ public class Bpmn2JsonUnmarshaller {
         }
 
         sequenceFlow.setIsImmediate(Boolean.parseBoolean(properties.get("isimmediate")));
-        
+
         // simulation properties
         if(properties.get("probability") != null && properties.get("probability").length() > 0) {
         	ControlParameters controlParams = BpsimFactory.eINSTANCE.createControlParameters();
@@ -7129,7 +7129,7 @@ public class Bpmn2JsonUnmarshaller {
             	values.add(controlParams);
             	_simulationElementParameters.put(sequenceFlow.getId(), values);
             }
-        	
+
         }
     }
 
@@ -7148,7 +7148,7 @@ public class Bpmn2JsonUnmarshaller {
         doc.setText(text);
         return doc;
     }
-    
+
     private boolean isCustomElement(String taskType, String preProcessingData) {
         if(taskType != null && taskType.length() > 0 && preProcessingData != null && preProcessingData.length() > 0) {
             String[] preProcessingDataElements = preProcessingData.split( ",\\s*" );
@@ -7160,15 +7160,15 @@ public class Bpmn2JsonUnmarshaller {
         }
         return false;
     }
-    
+
     protected BaseElement createBaseElement(String stencil, String taskType, boolean customElement){
         return Bpmn20Stencil.createElement(stencil, taskType, customElement);
     }
-    
+
     protected String wrapInCDATABlock(String value) {
     	return "<![CDATA[" + value + "]]>";
     }
-    
+
     private static String escapeXmlString(String string) {
 		StringBuffer sb = new StringBuffer(string.length());
 		// true if last char was blank
