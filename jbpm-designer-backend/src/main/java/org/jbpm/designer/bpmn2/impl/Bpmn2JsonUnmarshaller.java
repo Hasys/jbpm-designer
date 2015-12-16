@@ -88,7 +88,7 @@ public class Bpmn2JsonUnmarshaller {
     // the collection of outgoing ids.
     // we reconnect the edges with the shapes as a last step of the construction
     // of our graph from json, as we miss elements before.
-    private Map<Object, List<String>> _outgoingFlows = new HashMap<Object, List<String>>();
+    protected Map<Object, List<String>> _outgoingFlows = new HashMap<Object, List<String>>();
     private Set<String> _sequenceFlowTargets = new HashSet<String>();
     private Map<String, Bounds> _bounds = new HashMap<String, Bounds>();
     private Map<String, List<Point>> _dockers = new HashMap<String, List<Point>>();
@@ -1692,7 +1692,7 @@ public class Bpmn2JsonUnmarshaller {
         return null;
     }
 
-    private void revisitBoundaryEventsPositions(Definitions def) {
+    protected void revisitBoundaryEventsPositions(Definitions def) {
         List<RootElement> rootElements =  def.getRootElements();
         Map<BoundaryEvent, FlowElementsContainer> toAddBoundaryEvents = new HashMap<BoundaryEvent, FlowElementsContainer>();
         Map<BoundaryEvent, FlowElementsContainer> toRemoveBoundaryEvents = new HashMap<BoundaryEvent, FlowElementsContainer>();
@@ -1776,7 +1776,7 @@ public class Bpmn2JsonUnmarshaller {
 
     }
 
-    private void revisitCatchEventsConvertToBoundary(Definitions def) {
+    protected void revisitCatchEventsConvertToBoundary(Definitions def) {
     	List<CatchEvent> catchEventsToRemove = new ArrayList<CatchEvent>();
     	Map<BoundaryEvent, List<String>> boundaryEventsToAdd = new HashMap<BoundaryEvent, List<String>>();
     	List<RootElement> rootElements =  def.getRootElements();
@@ -3105,7 +3105,7 @@ public class Bpmn2JsonUnmarshaller {
     	}
     }
 
-    private BaseElement unmarshallItem(JsonParser parser, String preProcessingData) throws JsonParseException, IOException {
+    protected BaseElement unmarshallItem(JsonParser parser, String preProcessingData) throws JsonParseException, IOException {
         String resourceId = null;
         Map<String, String> properties = null;
         String stencil = null;

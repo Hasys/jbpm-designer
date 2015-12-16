@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jbpm.designer.test.bpmn2;
+package org.jbpm.designer.bpmn2.impl;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.io.File;
 import java.net.URL;
 import java.util.Collections;
+import java.util.List;
 
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonParser;
 import org.eclipse.bpmn2.Association;
 import org.eclipse.bpmn2.AssociationDirection;
 import org.eclipse.bpmn2.CancelEventDefinition;
@@ -36,6 +40,8 @@ import org.eclipse.bpmn2.ErrorEventDefinition;
 import org.eclipse.bpmn2.EscalationEventDefinition;
 import org.eclipse.bpmn2.EventBasedGateway;
 import org.eclipse.bpmn2.ExclusiveGateway;
+import org.eclipse.bpmn2.FlowElement;
+import org.eclipse.bpmn2.FlowElementsContainer;
 import org.eclipse.bpmn2.GlobalBusinessRuleTask;
 import org.eclipse.bpmn2.GlobalManualTask;
 import org.eclipse.bpmn2.GlobalScriptTask;
@@ -53,12 +59,12 @@ import org.eclipse.bpmn2.RootElement;
 import org.eclipse.bpmn2.SequenceFlow;
 import org.eclipse.bpmn2.SignalEventDefinition;
 import org.eclipse.bpmn2.StartEvent;
+import org.eclipse.bpmn2.SubProcess;
 import org.eclipse.bpmn2.Task;
 import org.eclipse.bpmn2.TerminateEventDefinition;
 import org.eclipse.bpmn2.TextAnnotation;
 import org.eclipse.bpmn2.ThrowEvent;
 import org.eclipse.bpmn2.TimerEventDefinition;
-import org.jbpm.designer.bpmn2.impl.Bpmn2JsonUnmarshaller;
 import org.junit.Test;
 
 /**
@@ -756,6 +762,98 @@ public class Bpmn2UnmarshallingTestCase {
         assertEquals(textA, association.getTargetRef());
         assertEquals(AssociationDirection.BOTH, association.getAssociationDirection());
         definitions.eResource().save(System.out, Collections.emptyMap());
+    }
+
+    @Test
+    public void testRevisitBoundaryEventsPositions() throws Exception {
+        final String SUBTIMER_NAME = "SubTimer";
+        final String SUBPROCESSMESSAGE_NAME = "SubProcessMessage";
+        final String OUTTIMER_NAME = "OutTimer";
+        final String DURING_INITIALIZATION = "during initialization";
+        final String AFTER_REVISION = "after revision";
+
+        List<String> initialBoundaryEventOutgointIds = null;
+        List<String> finalBoundaryEventOutgointIds = null;
+
+        Bpmn2JsonUnmarshaller unmarshaller = new Bpmn2JsonUnmarshaller();
+        JsonParser parser = new JsonFactory().createJsonParser(getTestJsonFile("boundaryEvents.json"));
+        parser.nextToken();
+        Definitions definitions = ((Definitions) unmarshaller.unmarshallItem(parser, ""));
+        unmarshaller.revisitCatchEvents(definitions);
+        unmarshaller.revisitCatchEventsConvertToBoundary(definitions);
+
+        // Validate initial state
+        for (RootElement root : definitions.getRootElements()) {
+            if(root instanceof Process) {
+                Process process = (Process) root;
+                assertThatElementPresent(true, DURING_INITIALIZATION, process, SUBTIMER_NAME);
+                assertThatElementPresent(true, DURING_INITIALIZATION, process, SUBPROCESSMESSAGE_NAME);
+                assertThatElementPresent(true, DURING_INITIALIZATION, process, OUTTIMER_NAME);
+
+                for(FlowElement flow : ((Process) root).getFlowElements()) {
+                    if (SUBTIMER_NAME.equals(flow.getName())) {
+                        initialBoundaryEventOutgointIds = unmarshaller._outgoingFlows.get(flow);
+                    }
+
+                    if ("Subprocess".equals(flow.getName())) {
+                        SubProcess subProcess = (SubProcess) flow;
+                        assertThatElementPresent(false, DURING_INITIALIZATION, subProcess, SUBTIMER_NAME);
+                        assertThatElementPresent(false, DURING_INITIALIZATION, subProcess, SUBPROCESSMESSAGE_NAME);
+                        assertThatElementPresent(false, DURING_INITIALIZATION, subProcess, OUTTIMER_NAME);
+                    }
+                }
+            }
+        }
+
+        unmarshaller.revisitBoundaryEventsPositions(definitions);
+
+        // Validate final state
+        for (RootElement root : definitions.getRootElements()) {
+            if(root instanceof Process) {
+                Process process = (Process) root;
+                assertThatElementPresent(false, AFTER_REVISION, process, SUBTIMER_NAME);
+                assertThatElementPresent(true, AFTER_REVISION, process, SUBPROCESSMESSAGE_NAME);
+                assertThatElementPresent(true, AFTER_REVISION, process, OUTTIMER_NAME);
+
+                for(FlowElement flow : ((Process) root).getFlowElements()) {
+                    if ("Subprocess".equals(flow.getName())) {
+                        SubProcess subProcess = (SubProcess) flow;
+                        assertThatElementPresent(true, "after revision", subProcess, SUBTIMER_NAME);
+                        assertThatElementPresent(false, "after revision", subProcess, SUBPROCESSMESSAGE_NAME);
+                        assertThatElementPresent(false, "after revision", subProcess, OUTTIMER_NAME);
+
+                        for (FlowElement subFlow : subProcess.getFlowElements()) {
+                            if (SUBTIMER_NAME.equals(subFlow.getName())) {
+                                finalBoundaryEventOutgointIds = unmarshaller._outgoingFlows.get(subFlow);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        initialBoundaryEventOutgointIds.equals(finalBoundaryEventOutgointIds);
+    }
+
+    private void assertThatElementPresent(boolean expected, String when, FlowElementsContainer where, String which) {
+        if (expected) {
+            assertTrue(which + " NOT found in " + where.toString() +  " " + when,
+                    isContainerContainFlowElementByName(where, which)
+            );
+        } else {
+            assertFalse(which + " found in " + where.toString() + " " + when,
+                    isContainerContainFlowElementByName(where, which)
+            );
+        }
+    }
+
+    private boolean isContainerContainFlowElementByName(FlowElementsContainer container, String elementName) {
+        for (FlowElement findingSubTimer : container.getFlowElements()) {
+            if (elementName.equals(findingSubTimer.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /* Disabling test as no support for child lanes yet
