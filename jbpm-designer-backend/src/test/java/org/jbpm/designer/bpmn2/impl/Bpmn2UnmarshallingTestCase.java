@@ -28,6 +28,7 @@ import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.eclipse.bpmn2.Association;
 import org.eclipse.bpmn2.AssociationDirection;
+import org.eclipse.bpmn2.BoundaryEvent;
 import org.eclipse.bpmn2.CancelEventDefinition;
 import org.eclipse.bpmn2.CatchEvent;
 import org.eclipse.bpmn2.CompensateEventDefinition;
@@ -762,6 +763,38 @@ public class Bpmn2UnmarshallingTestCase {
         assertEquals(textA, association.getTargetRef());
         assertEquals(AssociationDirection.BOTH, association.getAssociationDirection());
         definitions.eResource().save(System.out, Collections.emptyMap());
+    }
+
+    @Test
+    public void testFindContainerForBoundaryEvent() throws Exception {
+        Bpmn2JsonUnmarshaller unmarshaller = new Bpmn2JsonUnmarshaller();
+        JsonParser parser = new JsonFactory().createJsonParser(getTestJsonFile("boundaryEventsContainers.json"));
+        parser.nextToken();
+        Definitions definitions = ((Definitions) unmarshaller.unmarshallItem(parser, ""));
+        unmarshaller.revisitCatchEvents(definitions);
+        unmarshaller.revisitCatchEventsConvertToBoundary(definitions);
+
+        Process process = getRootProcess(definitions);
+
+        for(FlowElement element : process.getFlowElements()) {
+            if (element instanceof BoundaryEvent) {
+                BoundaryEvent be = (BoundaryEvent) element;
+                if ("Timer1".equals(element.getName())) {
+                    SubProcess sp = (SubProcess) unmarshaller.findContainerForBoundaryEvent(process, be);
+                    assertEquals("Subprocess1", sp.getName());
+                }
+
+                if ("Timer2".equals(element.getName())) {
+                    SubProcess sp = (SubProcess) unmarshaller.findContainerForBoundaryEvent(process, be);
+                    assertEquals("Subprocess2", sp.getName());
+                }
+
+                if ("Timer3".equals(element.getName())) {
+                    Process sp = (Process) unmarshaller.findContainerForBoundaryEvent(process, be);
+                    assertEquals("DemoProcess", sp.getName());
+                }
+            }
+        }
     }
 
     @Test
