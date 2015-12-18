@@ -818,9 +818,9 @@ public class Bpmn2UnmarshallingTestCase {
                 for(FlowElement flow : ((Process) root).getFlowElements()) {
                     if ("Subprocess".equals(flow.getName())) {
                         SubProcess subProcess = (SubProcess) flow;
-                        assertThatElementPresent(true, "after revision", subProcess, SUBTIMER_NAME);
-                        assertThatElementPresent(false, "after revision", subProcess, SUBPROCESSMESSAGE_NAME);
-                        assertThatElementPresent(false, "after revision", subProcess, OUTTIMER_NAME);
+                        assertThatElementPresent(true, AFTER_REVISION, subProcess, SUBTIMER_NAME);
+                        assertThatElementPresent(false, AFTER_REVISION, subProcess, SUBPROCESSMESSAGE_NAME);
+                        assertThatElementPresent(false, AFTER_REVISION, subProcess, OUTTIMER_NAME);
 
                         for (FlowElement subFlow : subProcess.getFlowElements()) {
                             if (SUBTIMER_NAME.equals(subFlow.getName())) {
@@ -833,6 +833,35 @@ public class Bpmn2UnmarshallingTestCase {
         }
 
         initialBoundaryEventOutgointIds.equals(finalBoundaryEventOutgointIds);
+
+        // Test2
+        unmarshaller = new Bpmn2JsonUnmarshaller();
+        parser = new JsonFactory().createJsonParser(getTestJsonFile("boundaryEventsContainers.json"));
+        parser.nextToken();
+        definitions = ((Definitions) unmarshaller.unmarshallItem(parser, ""));
+        unmarshaller.revisitCatchEvents(definitions);
+        unmarshaller.revisitCatchEventsConvertToBoundary(definitions);
+
+        Process process = getRootProcess(definitions);
+        assertThatElementPresent(true, "", process, "Timer3");
+        assertThatElementPresent(true, "", process, "Timer1");
+        assertThatElementPresent(true, "", process, "Timer2");
+
+        unmarshaller.revisitBoundaryEventsPositions(definitions);
+
+        assertThatElementPresent(true, "", process, "Timer3");
+        assertThatElementPresent(false, "", process, "Timer1");
+        assertThatElementPresent(false, "", process, "Timer2");
+
+        for(FlowElement flow : process.getFlowElements()) {
+            if ("Subprocess1".equals(flow.getName())) {
+                assertThatElementPresent(true, "", (SubProcess) flow, "Timer1");
+            }
+
+            if ("Subprocess2".equals(flow.getName())) {
+                assertThatElementPresent(true, "", (SubProcess) flow, "Timer2");
+            }
+        }
     }
 
     private void assertThatElementPresent(boolean expected, String when, FlowElementsContainer where, String which) {

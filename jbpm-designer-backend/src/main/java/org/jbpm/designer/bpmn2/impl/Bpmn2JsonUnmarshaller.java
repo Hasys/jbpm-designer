@@ -1693,87 +1693,84 @@ public class Bpmn2JsonUnmarshaller {
     }
 
     protected void revisitBoundaryEventsPositions(Definitions def) {
-        List<RootElement> rootElements =  def.getRootElements();
-        Map<BoundaryEvent, FlowElementsContainer> toAddBoundaryEvents = new HashMap<BoundaryEvent, FlowElementsContainer>();
-        Map<BoundaryEvent, FlowElementsContainer> toRemoveBoundaryEvents = new HashMap<BoundaryEvent, FlowElementsContainer>();
+        List<RootElement> rootElements = def.getRootElements();
         for(RootElement root : rootElements) {
             if(root instanceof Process) {
                 Process process = (Process) root;
+                List<BoundaryEvent> toRemove = new ArrayList();
                 for(FlowElement fe : process.getFlowElements()) {
                     if(fe instanceof BoundaryEvent) {
                         BoundaryEvent be = (BoundaryEvent) fe;
                         FlowElementsContainer container = findContainerForBoundaryEvent(process, be);
                         if(container != null && !(container instanceof Process)) {
-                            toAddBoundaryEvents.put(be, container);
-                            toRemoveBoundaryEvents.put(be, process);
+                            BoundaryEvent beCopy = copyBoundaryEvent(be);
+
+                            container.getFlowElements().add(beCopy);
+                            _outgoingFlows.put(beCopy, _outgoingFlows.get(be));
+
+                            toRemove.add(be);
+                            _outgoingFlows.remove(be);
                         }
                     }
                 }
-            }
-        }
-
-        for(BoundaryEvent beEntry : toAddBoundaryEvents.keySet()) {
-            BoundaryEvent be = Bpmn2Factory.eINSTANCE.createBoundaryEvent();
-            if(beEntry instanceof ErrorEventDefinition) {
-                be.setCancelActivity(true);
-            } else if (beEntry != null) {
-                Iterator<FeatureMap.Entry> iter = beEntry.getAnyAttribute().iterator();
-                while(iter.hasNext()) {
-                    FeatureMap.Entry entry2 = iter.next();
-                    if(entry2.getEStructuralFeature().getName().equals("boundaryca")) {
-                        String boundaryceVal = (String) entry2.getValue();
-                        be.setCancelActivity(Boolean.parseBoolean(boundaryceVal));
-                    }
+                for(BoundaryEvent be : toRemove) {
+                    process.getFlowElements().remove(be);
                 }
             }
-
-            if(beEntry.getDataOutputs() != null) {
-                be.getDataOutputs().addAll(beEntry.getDataOutputs());
-            }
-            if(beEntry.getDataOutputAssociation() != null) {
-                be.getDataOutputAssociation().addAll(beEntry.getDataOutputAssociation());
-            }
-            if(beEntry.getOutputSet() != null) {
-                be.setOutputSet(beEntry.getOutputSet());
-            }
-            if(beEntry.getEventDefinitions() != null) {
-                be.getEventDefinitions().addAll(beEntry.getEventDefinitions());
-            }
-            if(beEntry.getEventDefinitionRefs() != null) {
-                be.getEventDefinitionRefs().addAll(beEntry.getEventDefinitionRefs());
-            }
-            if(beEntry.getProperties() != null) {
-                be.getProperties().addAll(beEntry.getProperties());
-            }
-            if(beEntry.getAnyAttribute() != null) {
-                be.getAnyAttribute().addAll(beEntry.getAnyAttribute());
-            }
-            if(beEntry.getOutgoing() != null) {
-                be.getOutgoing().addAll(beEntry.getOutgoing());
-            }
-            if(beEntry.getIncoming() != null) {
-                be.getIncoming().addAll(beEntry.getIncoming());
-            }
-            if(beEntry.getProperties() != null) {
-                be.getProperties().addAll(beEntry.getProperties());
-            }
-
-            be.setName(beEntry.getName());
-            be.setId(beEntry.getId());
-
-            be.setAttachedToRef(beEntry.getAttachedToRef());
-
-            toAddBoundaryEvents.get(beEntry).getFlowElements().add(be);
-            _outgoingFlows.put(be, _outgoingFlows.get(beEntry));
-        }
-
-        for(BoundaryEvent beEntry : toRemoveBoundaryEvents.keySet()) {
-            toRemoveBoundaryEvents.get(beEntry).getFlowElements().remove(beEntry);
-            _outgoingFlows.remove(beEntry);
         }
 
         reconnectFlows();
+    }
 
+    private BoundaryEvent copyBoundaryEvent(BoundaryEvent beEntry) {
+        BoundaryEvent be = Bpmn2Factory.eINSTANCE.createBoundaryEvent();
+        if(beEntry instanceof ErrorEventDefinition) {
+            be.setCancelActivity(true);
+        } else {
+            Iterator<FeatureMap.Entry> iter = beEntry.getAnyAttribute().iterator();
+            while(iter.hasNext()) {
+                FeatureMap.Entry entry2 = iter.next();
+                if(entry2.getEStructuralFeature().getName().equals("boundaryca")) {
+                    String boundaryceVal = (String) entry2.getValue();
+                    be.setCancelActivity(Boolean.parseBoolean(boundaryceVal));
+                }
+            }
+        }
+
+        if(beEntry.getDataOutputs() != null) {
+            be.getDataOutputs().addAll(beEntry.getDataOutputs());
+        }
+        if(beEntry.getDataOutputAssociation() != null) {
+            be.getDataOutputAssociation().addAll(beEntry.getDataOutputAssociation());
+        }
+        if(beEntry.getOutputSet() != null) {
+            be.setOutputSet(beEntry.getOutputSet());
+        }
+        if(beEntry.getEventDefinitions() != null) {
+            be.getEventDefinitions().addAll(beEntry.getEventDefinitions());
+        }
+        if(beEntry.getEventDefinitionRefs() != null) {
+            be.getEventDefinitionRefs().addAll(beEntry.getEventDefinitionRefs());
+        }
+        if(beEntry.getProperties() != null) {
+            be.getProperties().addAll(beEntry.getProperties());
+        }
+        if(beEntry.getAnyAttribute() != null) {
+            be.getAnyAttribute().addAll(beEntry.getAnyAttribute());
+        }
+        if(beEntry.getOutgoing() != null) {
+            be.getOutgoing().addAll(beEntry.getOutgoing());
+        }
+        if(beEntry.getIncoming() != null) {
+            be.getIncoming().addAll(beEntry.getIncoming());
+        }
+
+        be.setName(beEntry.getName());
+        be.setId(beEntry.getId());
+
+        be.setAttachedToRef(beEntry.getAttachedToRef());
+
+        return be;
     }
 
     protected void revisitCatchEventsConvertToBoundary(Definitions def) {
